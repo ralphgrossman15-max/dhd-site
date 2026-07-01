@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  DAILY HOME DEALS  -  one-page affiliate site
+  ============================================================
+  HOW TO MAKE THIS YOURS:
+
+  1) AFFILIATE LINKS: search this file for  REPLACE_WITH_YOUR_LINK
+     and paste your Amazon affiliate URL for each product.
+     (Get links from Amazon Associates -> SiteStripe "Get Link".)
+
+  2) DEALS: update each card's title, blurb, and price with a
+     REAL current deal before you share the page. Don't post
+     fake/expired prices - it can get your account pulled.
+
+  3) PRODUCT PHOTOS (optional): each card has a green line-art
+     <svg> inside <div class="thumb">. To use a real photo,
+     delete the whole <svg>...</svg> and drop in:
+       <img src="my-photo.jpg" alt="Product name">
+     (Put image files in this same folder.)
+
+  LOGO: uses logo.png (your uploaded logo) in the header, hero
+  and footer, and daily-home-deals-icon.svg as the favicon.
+  Contact email + owner line are already filled in.
+  ============================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Home Deals - Hand-Picked Home & Kitchen Savings</title>
+<meta name="description" content="Hand-picked daily deals on home and kitchen products - air fryers, cookware, cleaning, storage and more. We find the discounts so you don't have to.">
+<link rel="icon" href="daily-home-deals-icon.svg" type="image/svg+xml">
+<style>
+  :root{
+    --bg:#ffffff;
+    --bg-soft:#f4fbf6;
+    --card:#ffffff;
+    --thumb:#eafaee;
+    --text:#0c1f14;
+    --muted:#5f7268;
+    --green:#00c805;        /* brand green (matches your logo) */
+    --green-deep:#009a1a;   /* darker green for readable text/links */
+    --line:#d9f0de;
+    --radius:14px;
+    --maxw:1100px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+
+  /* ---- nav ---- */
+  header.nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center}
+  .logo-img{height:42px;width:auto;display:block}
+  .nav-links{display:flex;gap:26px;font-size:.95rem;color:var(--muted)}
+  .nav-links a:hover{color:var(--green-deep)}
+  @media(max-width:640px){.nav-links{display:none}.logo-img{height:36px}}
+
+  /* ---- hero ---- */
+  .hero{padding:54px 0 30px;text-align:center}
+  .hero-logo{width:min(360px,82%);height:auto;display:block;margin:0 auto 26px}
+  .pill{
+    display:inline-block;font-size:.8rem;color:var(--green-deep);font-weight:700;
+    border:1px solid var(--line);background:var(--bg-soft);
+    padding:6px 14px;border-radius:999px;margin-bottom:18px;letter-spacing:.5px;
+  }
+  .hero h1{font-size:2.6rem;line-height:1.15;font-weight:850;max-width:780px;margin:0 auto 16px}
+  .hero h1 span{color:var(--green)}
+  .hero p.sub{color:var(--muted);font-size:1.12rem;max-width:620px;margin:0 auto 22px}
+  .cta{
+    display:inline-block;background:var(--green);color:#fff;font-weight:800;
+    padding:13px 26px;border-radius:10px;transition:transform .15s ease, box-shadow .15s ease;
+    box-shadow:0 8px 24px rgba(0,200,5,.28);
+  }
+  .cta:hover{transform:translateY(-2px)}
+  .disclosure-line{margin-top:22px;font-size:.82rem;color:var(--muted);font-style:italic}
+
+  /* ---- how we pick strip ---- */
+  .strip{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:48px 0}
+  @media(max-width:760px){.strip{grid-template-columns:1fr}}
+  .strip .item{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .strip .item h3{font-size:1.02rem;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .strip .item p{color:var(--muted);font-size:.92rem}
+  .badge{width:34px;height:34px;border-radius:9px;background:var(--thumb);display:grid;place-items:center;font-size:1.05rem;flex:none}
+
+  /* ---- section heads ---- */
+  .sec-head{display:flex;align-items:end;justify-content:space-between;margin:54px 0 22px;flex-wrap:wrap;gap:10px}
+  .sec-head h2{font-size:1.7rem;font-weight:800;color:var(--green-deep)}
+  .sec-head p{color:var(--muted);font-size:.92rem}
+
+  /* ---- deal grid ---- */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){.grid{grid-template-columns:1fr}}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;display:flex;flex-direction:column;
+    transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{border-color:var(--green);transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,200,5,.12)}
+  .thumb{background:var(--thumb);height:150px;display:grid;place-items:center;color:var(--green)}
+  .thumb svg{width:120px;height:90px}
+  .thumb img{width:100%;height:100%;object-fit:cover}
+  .card-body{padding:20px;display:flex;flex-direction:column;flex-grow:1}
+  .tag{align-self:flex-start;font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;
+       color:var(--green-deep);background:var(--thumb);padding:4px 10px;border-radius:999px;margin-bottom:12px;font-weight:700}
+  .card h3{font-size:1.12rem;margin-bottom:8px}
+  .card p.blurb{color:var(--muted);font-size:.93rem;flex-grow:1;margin-bottom:14px}
+  .price{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+  .price .now{font-size:1.4rem;font-weight:800;color:var(--green-deep)}
+  .price .was{font-size:.95rem;color:var(--muted);text-decoration:line-through}
+  .price .save{font-size:.78rem;color:#fff;background:var(--green);padding:3px 8px;border-radius:6px;font-weight:700}
+  .buy{display:block;text-align:center;background:var(--green);color:#fff;font-weight:800;padding:11px;border-radius:9px;transition:filter .15s ease}
+  .buy:hover{filter:brightness(.94)}
+
+  /* ---- content sections ---- */
+  .content{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:30px;margin-top:24px}
+  .content h2{font-size:1.5rem;margin-bottom:14px;color:var(--green-deep)}
+  .content h3{font-size:1.05rem;margin:18px 0 6px}
+  .content p{color:var(--muted);margin-bottom:12px}
+  .content p strong{color:var(--text)}
+  .content a{color:var(--green-deep);text-decoration:underline}
+
+  /* ---- footer ---- */
+  footer{border-top:1px solid var(--line);margin-top:64px;padding:34px 0;color:var(--muted);font-size:.88rem}
+  .foot-inner{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+  .foot-inner a{color:var(--muted)}
+  .foot-inner a:hover{color:var(--green-deep)}
+  .foot-disc{max-width:560px}
+  .logo-img-foot{height:34px;width:auto;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <div class="brand"><img src="logo.png" alt="Daily Home Deals" class="logo-img"></div>
+    <nav class="nav-links">
+      <a href="#deals">Deals</a>
+      <a href="#how">How We Pick</a>
+      <a href="#about">About</a>
+      <a href="#disclosure">Disclosure</a>
+      <a href="#privacy">Privacy</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero wrap">
+  <img src="logo.png" alt="Daily Home Deals - Hand-Picked Home Savings" class="hero-logo">
+  <span class="pill">UPDATED DAILY &middot; HOME &amp; KITCHEN</span>
+  <h1>The best <span>home deals</span>, hand-picked so you don't have to dig.</h1>
+  <p class="sub">We track price drops on kitchen gadgets, cleaning, storage and home essentials &mdash; then post only the ones actually worth buying.</p>
+  <a class="cta" href="#deals">See today's deals &darr;</a>
+  <p class="disclosure-line">As an Amazon Associate I earn from qualifying purchases.</p>
+</section>
+
+<!-- ============ HOW WE PICK ============ -->
+<section id="how" class="wrap">
+  <div class="strip">
+    <div class="item">
+      <h3><span class="badge">🔎</span> We check the real price history</h3>
+      <p>A "50% off" sticker means nothing if the price was inflated last week. We only flag genuine drops.</p>
+    </div>
+    <div class="item">
+      <h3><span class="badge">⭐</span> Ratings &amp; reviews matter</h3>
+      <p>We skip no-name junk. Every pick has a solid review track record from real buyers.</p>
+    </div>
+    <div class="item">
+      <h3><span class="badge">⚡</span> Posted while they're live</h3>
+      <p>Deals expire fast. We share them quickly and pull anything that's sold out or back to full price.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEALS ============ -->
+<section id="deals" class="wrap">
+  <div class="sec-head">
+    <h2>Today's Hand-Picked Deals</h2>
+    <p>Prices and availability change &mdash; always confirm on Amazon.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- DEAL 1 -->
+    <article class="card">
+      <div class="thumb">
+        <!-- swap this <svg> for <img src="..."> to use a real photo -->
+        <svg viewBox="0 0 120 90" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+          <rect x="42" y="16" width="36" height="58" rx="13" fill="currentColor" fill-opacity="0.08"/>
+          <circle cx="60" cy="30" r="7"/>
+          <rect x="49" y="52" width="22" height="20" rx="5"/>
+          <line x1="55" y1="62" x2="65" y2="62"/>
+        </svg>
+      </div>
+      <div class="card-body">
+        <span class="tag">Kitchen</span>
+        <h3>5.8-Quart Digital Air Fryer</h3>
+        <p class="blurb">Crispy fries, wings and veggies with little to no oil, and a basket big enough for a family meal. Faster than the oven and easy to wipe clean.</p>
+        <div class="price"><span class="now">$59</span><span class="was">$99</span><span class="save">-40%</span></div>
+        <a class="buy" href="https://www.amazon.com/Hamilton-Beach-Digital-Nonstick-35075/dp/B08578WCDF" target="_blank" rel="nofollow sponsored noopener">Check price on Amazon</a>
+      </div>
+    </article>
+
+    <!-- DEAL 2 -->
+    <article class="card">
+      <div class="thumb">
+        <svg viewBox="0 0 120 90" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="46" width="26" height="11" rx="5" fill="currentColor" fill-opacity="0.08"/>
+          <path d="M46 47 L96 47 Q104 47 96 56 L46 56 Z" fill="currentColor" fill-opacity="0.08"/>
+        </svg>
+      </div>
+      <div class="card-body">
+        <span class="tag">Kitchen</span>
+        <h3>15-Piece Stainless Knife Set with Block</h3>
+        <p class="blurb">Sharp, full-tang knives that cover every prep job, stored in a stable block. A clear upgrade from a drawer full of mismatched, dull blades.</p>
+        <div class="price"><span class="now">$45</span><span class="was">$80</span><span class="save">-44%</span></div>
+        <a class="buy" href="https://www.amazon.com/Cuisinart-C77SS-15PK-15-Piece-Stainless-Hollow/dp/B00GIBKC3K" target="_blank" rel="nofollow sponsored noopener">Check price on Amazon</a>
+      </div>
+    </article>
+
+    <!-- DEAL 3 -->
+    <article class="card">
+      <div class="thumb">
+        <svg viewBox="0 0 120 90" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="47" r="27" fill="currentColor" fill-opacity="0.08"/>
+          <circle cx="60" cy="47" r="7"/>
+          <rect x="50" y="22" width="20" height="7" rx="3.5" fill="currentColor" stroke="none"/>
+          <circle cx="60" cy="37" r="2.5" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+      <div class="card-body">
+        <span class="tag">Cleaning</span>
+        <h3>Self-Charging Robot Vacuum</h3>
+        <p class="blurb">Quietly keeps floors clean on a schedule, then docks itself to recharge. Great for pet hair and daily dust without lifting a finger.</p>
+        <div class="price"><span class="now">$129</span><span class="was">$199</span><span class="save">-35%</span></div>
+        <a class="buy" href="https://www.amazon.com/eufy-Super-Thin-Super-Strong-Self-Charging-Medium-Pile/dp/B07R295MLS" target="_blank" rel="nofollow sponsored noopener">Check price on Amazon</a>
+      </div>
+    </article>
+
+    <!-- DEAL 4 -->
+    <article class="card">
+      <div class="thumb">
+        <svg viewBox="0 0 120 90" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+          <rect x="38" y="48" width="44" height="22" rx="4" fill="currentColor" fill-opacity="0.08"/>
+          <rect x="34" y="43" width="52" height="6" rx="3"/>
+          <rect x="44" y="24" width="32" height="16" rx="4" fill="currentColor" fill-opacity="0.08"/>
+          <rect x="40" y="19" width="40" height="5" rx="2.5"/>
+        </svg>
+      </div>
+      <div class="card-body">
+        <span class="tag">Organization</span>
+        <h3>24-Piece Airtight Food Storage Set</h3>
+        <p class="blurb">Stackable, leak-proof containers that keep pantry staples fresh and tidy. Clear walls and matching lids make the cabinet actually findable.</p>
+        <div class="price"><span class="now">$29</span><span class="was">$49</span><span class="save">-41%</span></div>
+        <a class="buy" href="https://www.amazon.com/Airtight-Containers-Vtopmart-Organization-Canisters/dp/B08ZK5WDWN" target="_blank" rel="nofollow sponsored noopener">Check price on Amazon</a>
+      </div>
+    </article>
+
+    <!-- DEAL 5 -->
+    <article class="card">
+      <div class="thumb">
+        <svg viewBox="0 0 120 90" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+          <rect x="24" y="44" width="72" height="18" rx="5" fill="currentColor" fill-opacity="0.08"/>
+          <path d="M24 44 L24 29 Q24 24 29 24 L41 24 Q46 24 46 29 L46 44"/>
+          <rect x="29" y="35" width="14" height="9" rx="3"/>
+          <line x1="27" y1="62" x2="27" y2="70"/>
+          <line x1="93" y1="62" x2="93" y2="70"/>
+        </svg>
+      </div>
+      <div class="card-body">
+        <span class="tag">Bedroom</span>
+        <h3>Brushed Microfiber Sheet Set</h3>
+        <p class="blurb">Soft, breathable sheets with deep pockets that fit thick mattresses and survive countless washes. A cozy upgrade for far less than cotton.</p>
+        <div class="price"><span class="now">$25</span><span class="was">$45</span><span class="save">-44%</span></div>
+        <a class="buy" href="https://www.amazon.com/AmazonBasics-Microfiber-Sheet-Queen-Dark/dp/B00Q7OARO2" target="_blank" rel="nofollow sponsored noopener">Check price on Amazon</a>
+      </div>
+    </article>
+
+    <!-- DEAL 6 -->
+    <article class="card">
+      <div class="thumb">
+        <svg viewBox="0 0 120 90" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+          <path d="M40 18 L80 18 L80 40 L64 40 L64 50 L40 50 Z" fill="currentColor" fill-opacity="0.08"/>
+          <line x1="58" y1="50" x2="58" y2="54"/>
+          <path d="M47 54 L69 54 L65 72 Q65 74 63 74 L53 74 Q51 74 51 72 Z" fill="currentColor" fill-opacity="0.08"/>
+          <path d="M69 57 q8 2 5 12"/>
+        </svg>
+      </div>
+      <div class="card-body">
+        <span class="tag">Kitchen</span>
+        <h3>12-Cup Programmable Coffee Maker</h3>
+        <p class="blurb">Wake up to a full pot with the built-in timer, and keep it hot for hours. Simple, reliable, and a fraction of daily café prices.</p>
+        <div class="price"><span class="now">$34</span><span class="was">$55</span><span class="save">-38%</span></div>
+        <a class="buy" href="https://www.amazon.com/Mr-Coffee-12-Cup-Programmable-Maker/dp/B005MLB2S6" target="_blank" rel="nofollow sponsored noopener">Check price on Amazon</a>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about" class="wrap">
+  <div class="content">
+    <h2>About Daily Home Deals</h2>
+    <p>Daily Home Deals is a small, independently run deal site focused on one thing: finding genuinely good prices on home and kitchen products. Instead of listing thousands of items, we hand-pick a short list we'd actually recommend to a friend.</p>
+    <p>Every deal is checked for a real price drop and a solid review history before we post it. If a price jumps back up or an item sells out, we take it down. The goal is simple &mdash; save you time and help you avoid overpaying.</p>
+    <p>Run by the Daily Home Deals team. Questions, suggestions, or a deal you want us to check? Email <a href="mailto:johndeckerson12@gmail.com">johndeckerson12@gmail.com</a>.</p>
+  </div>
+</section>
+
+<!-- ============ AFFILIATE DISCLOSURE ============ -->
+<section id="disclosure" class="wrap">
+  <div class="content">
+    <h2>Affiliate Disclosure</h2>
+    <p><strong>As an Amazon Associate I earn from qualifying purchases.</strong></p>
+    <p>Daily Home Deals is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.</p>
+    <p>When you click a link on this site and buy something, we may earn a small commission &mdash; at no extra cost to you. This never changes the price you pay, and it doesn't influence which deals we choose to feature. We only post deals we believe are worth your money.</p>
+    <p>Product prices and availability are accurate as of the date/time shown and are subject to change. Any price displayed on Amazon at the moment you buy will apply.</p>
+  </div>
+</section>
+
+<!-- ============ PRIVACY POLICY ============ -->
+<section id="privacy" class="wrap">
+  <div class="content">
+    <h2>Privacy Policy</h2>
+    <p>This Privacy Policy explains how Daily Home Deals ("we", "us") collects and uses information when you visit this website.</p>
+
+    <h3>Information we collect</h3>
+    <p>We do not ask you to create an account or submit personal information to browse this site. Like most websites, our hosting provider may automatically log standard technical data such as your browser type, device, and approximate location for security and analytics purposes.</p>
+
+    <h3>Cookies &amp; affiliate links</h3>
+    <p>This site contains affiliate links to Amazon. When you click one, Amazon may place a cookie on your device so any qualifying purchase you make is credited to us. This is managed entirely by Amazon under their own privacy policy &mdash; we do not receive your name, address, or payment details. You can read Amazon's privacy notice on the Amazon website.</p>
+
+    <h3>Analytics</h3>
+    <p>We may use privacy-friendly analytics to understand which deals are popular. This data is aggregated and is not used to personally identify you.</p>
+
+    <h3>Your choices</h3>
+    <p>You can disable cookies in your browser settings at any time. Doing so will not stop you from using the site, though some links may not track correctly.</p>
+
+    <h3>Contact</h3>
+    <p>For any privacy questions, contact us at <a href="mailto:johndeckerson12@gmail.com">johndeckerson12@gmail.com</a>. This policy may be updated from time to time; the latest version will always appear on this page.</p>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap foot-inner">
+    <div class="foot-disc">
+      <img src="logo.png" alt="Daily Home Deals" class="logo-img-foot"><br>
+      As an Amazon Associate I earn from qualifying purchases. Prices and availability are subject to change.
+      <br>&copy; <span id="yr"></span> Daily Home Deals. All rights reserved.
+    </div>
+    <div>
+      <a href="#deals">Deals</a> &nbsp;&middot;&nbsp;
+      <a href="#about">About</a> &nbsp;&middot;&nbsp;
+      <a href="#disclosure">Disclosure</a> &nbsp;&middot;&nbsp;
+      <a href="#privacy">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

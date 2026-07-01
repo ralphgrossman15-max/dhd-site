@@ -1,0 +1,20 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- full-bleed green so the circular crop reads as a solid green coin -->
+  <rect x="0" y="0" width="1024" height="1024" fill="#00C805"/>
+
+  <g transform="translate(512 415) scale(0.9) translate(-516 -512)">
+  <!-- House (white) -->
+  <polygon points="445,332 315,454 575,454" fill="#ffffff"/>
+  <rect x="333" y="452" width="224" height="188" rx="16" fill="#ffffff"/>
+  <!-- door knockout -->
+  <rect x="412" y="540" width="52" height="100" rx="8" fill="#00C805"/>
+
+  <!-- % savings coin (green ring / white face / green %) -->
+  <circle cx="596" cy="570" r="122" fill="#00C805"/>
+  <circle cx="596" cy="570" r="98" fill="#ffffff"/>
+  <line x1="552" y1="630" x2="640" y2="512" stroke="#00C805" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="562" cy="532" r="19" fill="none" stroke="#00C805" stroke-width="14"/>
+  <circle cx="628" cy="610" r="19" fill="none" stroke="#00C805" stroke-width="14"/>
+  </g>
+  <text x="512" y="775" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="165" font-weight="700" letter-spacing="6" fill="#ffffff" text-anchor="middle">DEALS</text>
+</svg>
