@@ -208,6 +208,64 @@
   .grid-empty h3{color:var(--text);font-weight:800;margin-bottom:6px}
   .grid-note{margin-top:18px;font-size:.8rem;color:var(--muted);text-align:center}
 
+  /* ---------- search ---------- */
+  .searchbox{
+    display:flex;align-items:center;gap:9px;
+    border:1px solid var(--line);background:#fff;border-radius:999px;
+    padding:10px 18px;margin:0 0 14px;box-shadow:var(--shadow);
+    transition:border-color .15s ease;
+  }
+  .searchbox:focus-within{border-color:var(--green)}
+  .searchbox svg{width:16px;height:16px;color:var(--muted);flex:none}
+  .searchbox input{border:0;outline:0;font:inherit;font-size:.95rem;width:100%;background:transparent;color:var(--text)}
+  .searchbox input::placeholder{color:var(--muted)}
+
+  /* ---------- count pill ---------- */
+  .count-pill{
+    display:inline-block;vertical-align:middle;margin-left:10px;
+    font-size:.72rem;font-weight:800;letter-spacing:.5px;
+    color:var(--green-dark);background:var(--bg-soft);border:1px solid var(--line);
+    padding:4px 12px;border-radius:999px;
+  }
+
+  /* ---------- % off / hot / expired flags ---------- */
+  .pct-flag{
+    position:absolute;top:12px;right:12px;z-index:2;
+    background:var(--green-deep);color:#fff;font-size:.7rem;font-weight:900;letter-spacing:.5px;
+    padding:5px 10px;border-radius:999px;box-shadow:0 4px 12px rgba(0,138,23,.35);
+  }
+  .pct-flag.hot{background:#f4511e;box-shadow:0 4px 12px rgba(244,81,30,.4)}
+  .card.expired .thumb img{filter:grayscale(1);opacity:.5}
+  .card.expired{border-style:dashed}
+  .card.expired:hover{border-color:var(--line);transform:none;box-shadow:var(--shadow)}
+  .exp-flag{
+    position:absolute;top:12px;left:12px;z-index:2;
+    background:#6b7c71;color:#fff;font-size:.68rem;font-weight:900;letter-spacing:.8px;
+    padding:5px 10px;border-radius:999px;
+  }
+
+  /* ---------- card actions / share ---------- */
+  .actions{display:flex;gap:8px}
+  .actions .buy{flex:1}
+  .share-btn{
+    flex:none;width:46px;display:grid;place-items:center;
+    border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--green-deep);
+    cursor:pointer;transition:border-color .15s ease,transform .15s ease;
+  }
+  .share-btn:hover{border-color:var(--green);transform:translateY(-1px)}
+  .share-btn svg{width:18px;height:18px}
+
+  /* ---------- back to top ---------- */
+  .to-top{
+    position:fixed;left:18px;bottom:18px;z-index:70;width:44px;height:44px;
+    border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--green-deep);
+    display:grid;place-items:center;box-shadow:var(--shadow);cursor:pointer;
+    opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;
+    font-size:1.1rem;font-weight:900;
+  }
+  .to-top.show{opacity:1;pointer-events:auto}
+  .to-top:hover{transform:translateY(-2px)}
+
   /* ---------- whatsapp band ---------- */
   .wa-band{
     margin:60px 0 0;border-radius:20px;overflow:hidden;position:relative;
@@ -309,8 +367,13 @@
 <!-- ============ DEALS ============ -->
 <section id="deals" class="wrap">
   <div class="sec-head">
-    <h2>Today's <em>hand-picked</em> deals</h2>
+    <h2>Today's <em>hand-picked</em> deals<span class="count-pill" id="dealCount" hidden></span></h2>
     <p id="updatedLine">Prices and availability change — always confirm on Amazon.</p>
+  </div>
+
+  <div class="searchbox" id="searchBox" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.2" y2="16.2"/></svg>
+    <input type="search" id="dealSearch" placeholder="Search deals — e.g. vacuum, air fryer, storage…" aria-label="Search deals">
   </div>
 
   <div class="filters" id="filters" role="group" aria-label="Filter deals by category"></div>
@@ -420,6 +483,9 @@
   <span>Get deals first</span>
 </a>
 
+<!-- ============ BACK TO TOP ============ -->
+<button class="to-top" id="toTop" type="button" aria-label="Back to top">↑</button>
+
 <script>
 (function(){
   document.getElementById('yr').textContent = new Date().getFullYear();
@@ -446,12 +512,20 @@
     node = node.nextSibling;
   }
 
-  /* ---- NEW badge (posted within ~48h) + "Added" line ---- */
+  /* ---- NEW badge (~48h), LIKELY EXPIRED (>7 days) + "Added" line ---- */
   var now = new Date();
   Array.prototype.forEach.call(grid.querySelectorAll('.card[data-added]'), function(card){
     var added = new Date(card.dataset.added + 'T12:00:00');
     var ageDays = (now - added) / 864e5;
-    if(ageDays <= 2){
+    if(ageDays > 7){
+      card.classList.add('expired');
+      var ex = document.createElement('span');
+      ex.className = 'exp-flag';
+      ex.textContent = 'LIKELY EXPIRED';
+      card.appendChild(ex);
+      var buyBtn = card.querySelector('.buy');
+      if(buyBtn) buyBtn.textContent = 'Check if still live';
+    } else if(ageDays <= 2){
       var flag = document.createElement('span');
       flag.className = 'new-flag';
       flag.textContent = 'NEW';
@@ -476,8 +550,104 @@
     ul.innerHTML = 'Updated <strong>' + label + '</strong> &middot; always confirm the price on Amazon.';
   }
 
-  /* ---- category filter chips (auto-built, future-proof) ---- */
   var cards = Array.prototype.slice.call(grid.querySelectorAll('.card'));
+
+  /* ---- % off badge on thumbnail (🔥 hot at 40%+), runtime so auto-added cards get it too ---- */
+  function money(el){
+    if(!el) return null;
+    var n = parseFloat(el.textContent.replace(/[^0-9.]/g, ''));
+    return isNaN(n) ? null : n;
+  }
+  cards.forEach(function(card){
+    if(card.classList.contains('expired')) return;
+    var nowP = money(card.querySelector('.price .now'));
+    var wasP = money(card.querySelector('.price .was'));
+    var pct = null;
+    if(nowP && wasP && wasP > nowP) pct = Math.round((1 - nowP / wasP) * 100);
+    if(!pct){
+      var s = card.querySelector('.price .save');
+      var m = s && s.textContent.match(/(\d+)/);
+      if(m) pct = +m[1];
+    }
+    if(pct){
+      var f = document.createElement('span');
+      f.className = 'pct-flag' + (pct >= 40 ? ' hot' : '');
+      f.textContent = (pct >= 40 ? '🔥 ' : '') + pct + '% OFF';
+      card.appendChild(f);
+    }
+  });
+
+  /* ---- share button on every card (Web Share API, WhatsApp fallback) ---- */
+  cards.forEach(function(card){
+    var buy = card.querySelector('.buy');
+    if(!buy) return;
+    var row = document.createElement('div');
+    row.className = 'actions';
+    buy.parentNode.insertBefore(row, buy);
+    row.appendChild(buy);
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'share-btn';
+    btn.setAttribute('aria-label', 'Share this deal');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>';
+    btn.addEventListener('click', function(){
+      var title = card.querySelector('h3');
+      var nowEl = card.querySelector('.price .now');
+      var txt = '🔥 ' + (title ? title.textContent.trim() : 'Deal') +
+                (nowEl ? ' — now ' + nowEl.textContent.trim() : '') + '\n' + buy.href;
+      if(navigator.share){
+        navigator.share({text: txt}).catch(function(){});
+      } else {
+        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(txt), '_blank', 'noopener');
+      }
+    });
+    row.appendChild(btn);
+  });
+
+  /* ---- live deal counter ---- */
+  var countEl = document.getElementById('dealCount');
+  var live = cards.filter(function(c){ return !c.classList.contains('expired'); }).length;
+  if(countEl && live){
+    countEl.hidden = false;
+    countEl.textContent = live + (live === 1 ? ' deal live' : ' deals live');
+  }
+
+  /* ---- search + category filters (combined, auto-built, future-proof) ---- */
+  var activeCat = 'All', query = '';
+  var emptyBox = document.getElementById('gridEmpty');
+  var emptyH = emptyBox.querySelector('h3');
+  var emptyP = emptyBox.querySelector('p');
+  var defH = emptyH.textContent, defP = emptyP.textContent;
+
+  function applyFilters(){
+    var visible = 0;
+    cards.forEach(function(c){
+      var t = c.querySelector('.tag');
+      var catOk = activeCat === 'All' || (t && t.textContent.trim() === activeCat);
+      var qOk = !query || c.textContent.toLowerCase().indexOf(query) !== -1;
+      var show = catOk && qOk;
+      c.classList.toggle('hidden-by-filter', !show);
+      if(show) visible++;
+    });
+    if(cards.length > 0 && visible === 0){
+      emptyH.textContent = 'No deals match';
+      emptyP.textContent = 'Try a different search or category — or follow the WhatsApp channel to catch the next drop.';
+    } else {
+      emptyH.textContent = defH;
+      emptyP.textContent = defP;
+    }
+    emptyBox.style.display = (cards.length === 0 || visible === 0) ? 'block' : 'none';
+  }
+
+  var searchWrap = document.getElementById('searchBox');
+  var searchInput = document.getElementById('dealSearch');
+  if(cards.length >= 3 && searchWrap){
+    searchWrap.hidden = false;
+    searchInput.addEventListener('input', function(){
+      query = searchInput.value.trim().toLowerCase();
+      applyFilters();
+    });
+  }
+
   var cats = [];
   cards.forEach(function(c){
     var t = c.querySelector('.tag');
@@ -495,25 +665,24 @@
       b.addEventListener('click', function(){
         Array.prototype.forEach.call(bar.children, function(x){x.classList.remove('active')});
         b.classList.add('active');
-        cards.forEach(function(c){
-          var t = c.querySelector('.tag');
-          var match = label === 'All' || (t && t.textContent.trim() === label);
-          c.classList.toggle('hidden-by-filter', !match);
-        });
-        check();
+        activeCat = label;
+        applyFilters();
       });
       return b;
     };
     var all = mk('All'); all.classList.add('active'); bar.appendChild(all);
     cats.sort().forEach(function(c){ bar.appendChild(mk(c)); });
   }
+  applyFilters();
 
-  /* ---- empty state ---- */
-  function check(){
-    var visible = cards.filter(function(c){ return !c.classList.contains('hidden-by-filter'); }).length;
-    document.getElementById('gridEmpty').style.display = (cards.length === 0 || visible === 0) ? 'block' : 'none';
+  /* ---- back to top ---- */
+  var toTop = document.getElementById('toTop');
+  if(toTop){
+    var onScroll = function(){ toTop.classList.toggle('show', window.scrollY > 600); };
+    window.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
   }
-  check();
 })();
 </script>
 
